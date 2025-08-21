@@ -1,0 +1,7 @@
+"filename", "language", "Rust", "comment", "blank", "total"
+"c:\Users\MACHINE\GG\rc\src\core\math.rs", "Rust", 10, 4, 1, 15
+"c:\Users\MACHINE\GG\rc\src\gpu_passes\utils.rs", "Rust", -14, -4, -2, -20
+"c:\Users\MACHINE\GG\rc\src\gpu_resources\textures.rs", "Rust", -3, 0, 0, -3
+"c:\Users\MACHINE\GG\rc\src\gpu_resources\uniforms.rs", "Rust", -2, 1, 0, -1
+"c:\Users\MACHINE\GG\rc\src\lib.rs", "Rust", -1, 0, 0, -1
+"Total", "-", -10, 1, -1, -10

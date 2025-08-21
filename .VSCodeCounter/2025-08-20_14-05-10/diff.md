@@ -1,0 +1,32 @@
+# Diff Summary
+
+Date : 2025-08-20 14:05:10
+
+Directory c:\\Users\\MACHINE\\GG\\rc\\src
+
+Total : 38 files,  1737 codes, -26 comments, 250 blanks, all 1961 lines
+
+[Summary](results.md) / [Details](details.md) / Diff Summary / [Diff Details](diff-details.md)
+
+## Languages
+| language | files | code | comment | blank | total |
+| :--- | ---: | ---: | ---: | ---: | ---: |
+| Rust | 29 | 2,467 | 124 | 409 | 3,000 |
+| WGSL | 9 | -730 | -150 | -159 | -1,039 |
+
+## Directories
+| path | files | code | comment | blank | total |
+| :--- | ---: | ---: | ---: | ---: | ---: |
+| . | 38 | 1,737 | -26 | 250 | 1,961 |
+| . (Files) | 2 | 56 | 6 | 9 | 71 |
+| .. | 9 | -730 | -150 | -159 | -1,039 |
+| ..\\assets | 9 | -730 | -150 | -159 | -1,039 |
+| ..\\assets\\shaders | 9 | -730 | -150 | -159 | -1,039 |
+| core | 2 | 20 | 14 | 12 | 46 |
+| debug | 3 | 240 | 1 | 33 | 274 |
+| gpu_api | 5 | 869 | 41 | 162 | 1,072 |
+| gpu_passes | 10 | 514 | 26 | 97 | 637 |
+| gpu_resources | 4 | 515 | 31 | 57 | 603 |
+| utils | 3 | 253 | 5 | 39 | 297 |
+
+[Summary](results.md) / [Details](details.md) / Diff Summary / [Diff Details](diff-details.md)
