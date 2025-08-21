@@ -89,3 +89,10 @@ Initially we'll only put c0 probes on voxels with emissive materials, but indire
 So Transmissive RC only has a bottom-up ray casting process and eliminates the need for a top-down merge. But it necessitates some kind of "apply lighting" functionality which will need to be handled case-by-case, and may not be viable depending on the rendering pipeline setup.
 
 Another drawback is the lack of ability to integrate skybox lighting ([ref skybox integral by Mathis](https://www.shadertoy.com/view/mtlBzX)) because we are now only casting rays for emissive parts of the scene and not all parts of the scene. This can be solved by generating an omni-directional shadow map of the scene, illuminating voxels with sky-lighting, and storing some kind of directional mask which we can check during ray-casting to cull rays that travel to the skybox. But this is highly experimental.
+
+---
+# License
+
+All code in this repository is dual-licensed under either:
+- MIT License (LICENSE-MIT or http://opensource.org/licenses/MIT)
+- Apache License, Version 2.0 (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0)
