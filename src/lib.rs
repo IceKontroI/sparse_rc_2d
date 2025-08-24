@@ -11,16 +11,6 @@ pub mod debug {
     pub mod timings;
 }
 
-/// Minimal but incomplete Bevy-WGPU abstraction API to minimize GPU verbosity.
-/// This will probably see heavy reworks, get new features, and move to its own crate.
-pub mod gpu_api {
-    pub mod attach;
-    pub mod bind;
-    pub mod color;
-    pub mod pass;
-    pub mod utils;
-}
-
 /// Each of these rust modules (except `plugin`) corresponds to a WGSL shader.
 /// The rc.wgsl shader is a common API that gets imported into a few of these.
 pub mod gpu_passes {

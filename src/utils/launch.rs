@@ -10,7 +10,7 @@ impl<const W: u32, const H: u32> Plugin for Launch<W, H> {
                 primary_window: Some(Window { 
                     title: "Radiance Cascades".into(),
                     position: WindowPosition::Centered(MonitorSelection::Primary),
-                    resolution: WindowResolution::new(W, H)
+                    resolution: WindowResolution::new(W as f32, H as f32)
                         .with_scale_factor_override(1.0),
                     ..default() 
                 }

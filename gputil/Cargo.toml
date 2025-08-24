@@ -1,17 +1,10 @@
 [package]
-name = "rc"
-version = "1.0.0"
+name = "gputil"
+version = "0.1.0"
 edition = "2021"
-license = "MIT OR Apache-2.0"
 
 [dependencies]
-gputil = { path = "gputil" }
 # bevy = "0.17.0" awaiting https://github.com/bevyengine/bevy/issues/20715
 bevy = { git = "https://github.com/bevyengine/bevy", rev = "e2ba37fcb2daa7c476a65899121dfadcfa4c58b3" }
 derive_builder = "0.20.2"
-ndex = "0.1.0"
 chain_link = "0.1.3"
-rand = "0.9.1"
-image = "0.25.6"
-num-format = "0.4.4"
-pretty-type-name = "1.0.1"

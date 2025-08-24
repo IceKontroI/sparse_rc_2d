@@ -1,8 +1,7 @@
 use bevy::app::*;
 use bevy::render::{render_graph::*, *};
 use bevy::core_pipeline::core_2d::graph::*;
-use crate::gpu_api::pass::{ComputePipeline, RasterPipeline};
-use crate::gpu_api::utils::{ComputePassLabel, RasterPassLabel};
+use gputil::{compute::*, raster::*, utils::*};
 use super::*;
 
 pub struct RenderPassesPlugin;

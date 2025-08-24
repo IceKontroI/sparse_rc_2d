@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bevy::render::{render_graph::*, render_resource::*, renderer::*};
-use crate::gpu_api::{attach::*, bind::*, color::*, pass::*, utils::*};
+use gputil::{attach::*, bind::*, color::*, raster::*, utils::*};
 use crate::gpu_resources::{mouse_trail::*, textures::*};
 
 #[derive(Default, Debug, Hash, PartialEq, Eq, Clone, RenderLabel)]
@@ -13,20 +13,22 @@ pub struct DrawUniform {
     rgb: Vec3,
 }
 
-impl Pass for Draw {
+impl Raster for Draw {
+    
+    const VERTEX_FRAGMENT_SHADER_PATH: &'static str = "shaders/draw.wgsl";
+    
     type Binds = DrawUniformBind;
     type Count = DrawIter;
     type Commands = ();
-}
-
-impl Raster for Draw {
-    type Targets = SceneAttachments;
-    const VERTEX_FRAGMENT_SHADER_PATH: &'static str = "shaders/draw.wgsl";
+    type ColorTargets = SceneAttachments;
+    type DepthTarget = ();
+    type RasterDraw = RasterDrawQuad;
 
     fn fragment_targets() -> Vec<Option<ColorTargetState>> {vec![
         Some(CoreBindGroup::color_target_state::<0>()), // albedo 
         Some(CoreBindGroup::color_target_state::<1>()), // emissive
     ]}
+    
 }
 
 pub struct DrawIter;

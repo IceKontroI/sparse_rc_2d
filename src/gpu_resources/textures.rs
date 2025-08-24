@@ -2,10 +2,11 @@ use std::result::Result;
 use bevy::{app::*, prelude::*, render::{render_resource::*, *}};
 use extract_component::*;
 use gpu_readback::*;
+use gputil::attach::*;
 use ndex::*;
 use chain_link::*;
 use storage::*;
-use crate::{core::math::*, debug::statistics::*, gpu_api::attach::*};
+use crate::{core::math::*, debug::statistics::*};
 
 const ATTACHMENT_USAGES: TextureUsages = TextureUsages::RENDER_ATTACHMENT
     .union(TextureUsages::TEXTURE_BINDING)

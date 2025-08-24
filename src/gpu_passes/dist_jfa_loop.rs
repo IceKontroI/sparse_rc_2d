@@ -1,22 +1,23 @@
 use bevy::{prelude::*, render::{render_graph::*, render_resource::*, renderer::*}};
-use crate::gpu_api::{attach::*, bind::*, color::*, pass::*, utils::*};
+use gputil::{attach::*, bind::*, color::*, raster::*, utils::*};
 use crate::gpu_resources::{textures::*, uniforms::*};
 
 #[derive(Default, Debug, Hash, PartialEq, Eq, Clone, RenderLabel)]
 pub struct DistJfaLoop;
 
-impl Pass for DistJfaLoop {
+impl Raster for DistJfaLoop {
+
+    const VERTEX_FRAGMENT_SHADER_PATH: &'static str = "shaders/dist_jfa_loop.wgsl";
+
     type Binds = (
         JfaUniformBind,
         PingPongJFA,
     );
     type Count = JfaIterations;
     type Commands = ();
-}
-
-impl Raster for DistJfaLoop {
-    type Targets = PingPongJFA;
-    const VERTEX_FRAGMENT_SHADER_PATH: &'static str = "shaders/dist_jfa_loop.wgsl";
+    type ColorTargets = PingPongJFA;
+    type DepthTarget = ();
+    type RasterDraw = RasterDrawQuad;
     
     fn fragment_targets() -> Vec<Option<ColorTargetState>> {
         // Distance A and B are both the same, so we can safely ping-pong between A and B using A's definition

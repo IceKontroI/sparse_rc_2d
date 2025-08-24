@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy::render::{render_graph::*, render_resource::*, renderer::*};
+use gputil::{attach::*, bind::*, color::*, raster::*, utils::*};
 use crate::core::math::*;
-use crate::gpu_api::{attach::*, bind::*, color::*, pass::*, utils::*};
 use crate::gpu_resources::{textures::*, uniforms::*};
 
 /// Top-down combined raymarch and merge fragment render pass.
@@ -12,23 +12,26 @@ use crate::gpu_resources::{textures::*, uniforms::*};
 #[derive(Default, Debug, Hash, PartialEq, Eq, Clone, RenderLabel)]
 pub struct RcDense;
 
-impl Pass for RcDense {
+impl Raster for RcDense {
+    
+    const VERTEX_FRAGMENT_SHADER_PATH: &'static str = "shaders/rc_dense.wgsl";
+    
     type Binds = (
         RcDenseUniformBinds,
         ViewBind<CoreBindGroup>,
         DenseLightBind,
     );
+    type ColorTargets = DenseLightTarget;
+    type DepthTarget = ();
     type Count = Self;
     type Commands = ();
-}
-
-impl Raster for RcDense {
-    type Targets = DenseLightTarget;
-    const VERTEX_FRAGMENT_SHADER_PATH: &'static str = "shaders/rc_dense.wgsl";
+    type RasterDraw = RasterDrawQuad;
 
     fn fragment_targets() -> Vec<Option<ColorTargetState>> {
         vec![Some(DirectLightingA::color_target_state())]
     }
+    
+    
 }
 
 impl PassIter for RcDense {

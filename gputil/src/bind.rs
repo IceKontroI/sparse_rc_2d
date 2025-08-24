@@ -1,7 +1,7 @@
 use std::marker::*;
 use bevy::{ecs::{query::*, system::*}, prelude::*};
 use bevy::render::{render_resource::*, renderer::*};
-use crate::gpu_api::utils::*;
+use crate::utils::*;
 
 pub struct BindContext<'a, 'w> {
     pub layout: &'a BindGroupLayout,

@@ -1,27 +1,26 @@
 use std::marker::*;
 use bevy::prelude::*;
 use bevy::render::{render_graph::*, render_resource::*, view::*};
-use crate::gpu_api::pass::*;
-use crate::gpu_api::{color::*, utils::*};
-use crate::gpu_resources::textures::*;
-use crate::gpu_resources::uniforms::*;
+use gputil::{color::*, raster::*, utils::*};
+use crate::gpu_resources::{textures::*, uniforms::*};
 
 #[derive(Default, Debug, Hash, PartialEq, Eq, Clone, RenderLabel)]
 pub struct Output;
 
-impl Pass for Output {
+impl Raster for Output {
+    
+    const VERTEX_FRAGMENT_SHADER_PATH: &'static str = "shaders/output.wgsl";
+    
     type Binds = (
         WorldBind<RcUniforms>,
         ViewBind<CoreBindGroup>, 
         ViewBind<DirectLightingB>,
     );
+    type ColorTargets = Screen;
+    type DepthTarget = ();
     type Count = Count<1>;
     type Commands = ();
-}
-
-impl Raster for Output {
-    type Targets = Screen;
-    const VERTEX_FRAGMENT_SHADER_PATH: &'static str = "shaders/output.wgsl";
+    type RasterDraw = RasterDrawQuad;
 
     fn fragment_targets() -> Vec<Option<ColorTargetState>> {
         vec![Some(TextureFormat::bevy_default().into())]

@@ -2,7 +2,6 @@ use std::{any::*, marker::*};
 use bevy::{app::*, diagnostic::*, log::*, prelude::*};
 use bevy::render::diagnostic::*;
 use pretty_type_name::*;
-use crate::gpu_api::pass::*;
 use crate::gpu_passes::*;
 use super::metrics::*;
 
@@ -40,11 +39,28 @@ pub fn print_render_pass_timings(
     frame += total;
 }
 
-pub fn get_path<T: Pass>() -> DiagnosticPath {
+// marker trait
+pub trait RenderPassMetrics: Send + Sync + 'static {}
+
+// for all render passes
+impl RenderPassMetrics for Reset {}
+impl RenderPassMetrics for Draw {}
+impl RenderPassMetrics for DistJfaSeed {}
+impl RenderPassMetrics for DistJfaLoop {}
+impl RenderPassMetrics for DistField {}
+impl RenderPassMetrics for RcDense {}
+impl RenderPassMetrics for RcSparse {}
+impl RenderPassMetrics for Output {}
+
+// for aggregate render pass metrics
+pub struct Frame;
+impl RenderPassMetrics for Frame {}
+
+pub fn get_path<T>() -> DiagnosticPath {
     DiagnosticPath::new(format!("render/{}/elapsed_gpu", type_name::<T>()))
 }
 
-pub fn apply_and_get_time<T: Pass>(diag: &DiagnosticsStore, metrics: &mut Metrics<T>) -> f64 {
+pub fn apply_and_get_time<T: RenderPassMetrics>(diag: &DiagnosticsStore, metrics: &mut Metrics<T>) -> f64 {
     let time = diag.get(&get_path::<T>())
         // can also use `smoothed` or `average`
         .map(Diagnostic::value)
@@ -53,24 +69,12 @@ pub fn apply_and_get_time<T: Pass>(diag: &DiagnosticsStore, metrics: &mut Metric
     time
 }
 
-impl<T: Pass + Send + Sync + 'static> Metric for T {
+impl<T: RenderPassMetrics + Send + Sync + 'static> Metric for T {
     type Data = f64;
     
     fn emit(ms: f64, frames: u32) {
         let ms = ms / frames as f64;
-        // if ms > 0.005 {
-            let name = pretty_type_name::<T>();
-            info!("{name}: {ms:.3} MS");
-        // }
-    }
-}
-
-pub struct Frame;
-impl Metric for Frame {
-    type Data = f64;
-    
-    fn emit(ms: f64, frames: u32) {
-        let ms = ms / frames as f64;
-        info!("Frame: {ms:.3} MS");
+        let name = pretty_type_name::<T>();
+        info!("{name}: {ms:.3} MS");
     }
 }

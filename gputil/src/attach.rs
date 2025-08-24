@@ -3,7 +3,7 @@ use bevy::render::{extract_component::*, render_asset::*, render_resource::*, te
 use bevy::{app::*, asset::*, ecs::component::*, image::*, math::*, prelude::*};
 use chain_link::*;
 use derive_builder::*;
-use crate::gpu_api::utils::BindParams;
+use crate::utils::BindParams;
 
 // TODO this whole thing could use a rework, and might be worth contributing to Bevy source directly
 

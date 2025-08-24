@@ -1,6 +1,6 @@
 use bevy::{ecs::{query::*, system::*}, prelude::*};
 use bevy::render::render_resource::*;
-use crate::gpu_api::utils::*;
+use crate::utils::*;
 use super::attach::*;
 
 pub trait ColorTarget {
@@ -88,8 +88,8 @@ impl ColorTargets for () {
     
     const LEN: u32 = 0;
                 
-    fn get_views(_: usize, _: (), _: (), _: &mut BindParams<'_>) -> Option<()> { None }
-    fn attachments(_: &(), _: usize) -> Option<Vec<RenderPassColorAttachment>> { None }
+    fn get_views(_: usize, _: (), _: (), _: &mut BindParams<'_>) -> Option<()> { Some(()) }
+    fn attachments(_: &(), _: usize) -> Option<Vec<RenderPassColorAttachment>> { Some(vec![]) }
 }
 
 impl<A: ColorTarget> ColorTargets for A {

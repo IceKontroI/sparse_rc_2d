@@ -21,10 +21,10 @@ impl Plugin for UniformsPlugin {
 
 #[derive(Debug, Default, Copy, Clone, Eq, PartialEq, Resource, ExtractResource)]
 pub enum RcEnum {
-    SparseEdge,
+    SparseEdge = 0,
     #[default]
-    SparseFilled,
-    Dense,
+    SparseFilled = 1,
+    Dense = 2,
 }
 
 fn update_rc_mode(
@@ -47,10 +47,7 @@ fn update_rc_mode(
             RcEnum::Dense => return,
         };
     }
-    rcu.filled_mode = match *rc_enum {
-        RcEnum::SparseFilled => 1,
-        _ => 0,
-    };
+    rcu.rc_model = *rc_enum as u32;
     window.title = format!("Radiance Cascades ({:?})", *rc_enum);
 }
 
@@ -68,7 +65,7 @@ pub struct RcUniforms {
     #[uniform(0)] pub function_mode: u32,
     #[uniform(1)] pub debug_mode: u32,
     #[uniform(2)] pub push_mode: u32,
-    #[uniform(3)] pub filled_mode: u32,
+    #[uniform(3)] pub rc_model: u32,
     // core params
     #[uniform(4)] pub screen_dims: UVec2,
     #[uniform(5)] pub cascade_dims: UVec2,

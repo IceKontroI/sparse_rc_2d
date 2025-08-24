@@ -1,13 +1,10 @@
 use std::ops::*;
-use bevy::image::TextureFormatPixelInfo;
-use bevy::prelude::*;
-use bevy::render::{gpu_readback::*, render_resource::*};
+use bevy::{image::*, prelude::*, render::{gpu_readback::*, render_resource::*}};
+use gputil::attach::*;
 use num_format::*;
 use crate::debug::metrics::*;
 use crate::core::constants::*;
-use crate::gpu_api::attach::Attach;
-use crate::gpu_resources::textures::{DirectLightingA, DirectLightingB};
-use crate::gpu_resources::uniforms::RcUniforms;
+use crate::gpu_resources::{textures::*, uniforms::*};
 
 #[derive(Default, Copy, Clone, ShaderType)]
 pub struct Statistics {
@@ -38,10 +35,13 @@ pub fn readback(
     data_lost += statistics.data_lost;
     c0_tasks += statistics.c0_tasks;
     ray_hits += statistics.ray_hits;
-    // dense model scales with cascade size (quarter-res)
-    dense_memory += (rcu.cascade_dims.x * rcu.cascade_dims.y) as usize;
-    // sparse model scales with slab allocation
-    sparse_memory += statistics.slabs_allocated;
+    if rcu.rc_model == 2 {
+        // dense model scales with cascade size (quarter-res)
+        dense_memory += (rcu.cascade_dims.x * rcu.cascade_dims.y) as usize;
+    } else {
+        // sparse model scales with slab allocation
+        sparse_memory += statistics.slabs_allocated;
+    }
     let active = statistics.threads_active as f32;
     let total = (statistics.threads_active + statistics.threads_idle) as f32;
     thread_utilization += active / total;

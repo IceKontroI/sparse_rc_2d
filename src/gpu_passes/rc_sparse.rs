@@ -1,16 +1,17 @@
 use bevy::prelude::*;
 use bevy::render::render_graph::*;
-use bevy::shader::ShaderDefVal;
-use crate::gpu_api::pass::*;
-use crate::gpu_api::utils::*;
-use crate::gpu_resources::textures::*;
-use crate::gpu_resources::{slab::*, uniforms::*};
+use bevy::shader::*;
+use gputil::{compute::*, utils::*};
+use crate::gpu_resources::{slab::*, textures::*, uniforms::*};
 use crate::core::constants::*;
 
 #[derive(Default, Debug, Hash, PartialEq, Eq, Clone, RenderLabel)]
 pub struct RcSparse;
 
-impl Pass for RcSparse {
+impl Compute for RcSparse {
+    
+    const COMPUTE_SHADER_PATH: &'static str = "shaders/rc_sparse.wgsl";
+    
     type Binds = (
         WorldBind<RcUniforms>,
         ViewBind<CoreBindGroup>,
@@ -19,11 +20,7 @@ impl Pass for RcSparse {
     );
     type Count = Self;
     type Commands = ();
-}
-
-impl Compute for RcSparse {
-    type Workgroups = Self;
-    const COMPUTE_SHADER_PATH: &'static str = "shaders/rc_sparse.wgsl";
+    type Dispatch = Self;
 
     fn shader_defs() -> Vec<ShaderDefVal> {
         vec![
@@ -37,13 +34,16 @@ impl Compute for RcSparse {
 /// 1920x1080 has 6 cascades, so a cascade covers a 64x64 texel area.
 /// 30 workgroups is 1920 texels wide, and 16 is 1024 which falls short in height.
 /// So for cases like this, we dispatch an extra workgroup to ensure coverage, in this case 30x17.
-impl WorkgroupArgs for RcSparse {
+impl ComputeDispatch for RcSparse {
     type WorldParams<'w, 's> = Res<'w, RcUniforms>;
     type ViewParams<'w, 's> = ();
-
-    fn workgroups(rcu: Res<RcUniforms>, _: (),) -> UVec3 {
+    
+    fn get_dispatch_type<'w, 's>(
+        rcu: Res<RcUniforms>, _: (),    
+    ) -> Option<ComputeDispatchType> {
         let dispatch = (rcu.screen_dims + UVec2::splat((rcu.texel_span as u32).saturating_sub(1))) / rcu.texel_span;
-        UVec3::new(dispatch.x, dispatch.y, 1)
+        let shape = UVec3::new(dispatch.x, dispatch.y, 1);
+        Some(ComputeDispatchType::Fixed(shape))
     }
 }
 

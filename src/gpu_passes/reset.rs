@@ -1,21 +1,21 @@
 use bevy::prelude::*;
 use bevy::render::{render_asset::*, render_graph::*, render_resource::*, storage::*, texture::*};
-use crate::gpu_api::{pass::*, utils::*};
+use gputil::compute::{Compute, StaticDispatch};
+use gputil::utils::{Count, GpuCommands};
 use crate::gpu_resources::{slab::*, textures::*};
 
 /// Doesn't do any work, just clears some resources each frame.
 #[derive(Default, Debug, Hash, PartialEq, Eq, Clone, RenderLabel)]
 pub struct Reset;
 
-impl Pass for Reset {
+impl Compute for Reset {
+
+    const COMPUTE_SHADER_PATH: &'static str = "shaders/reset.wgsl";
+
     type Binds = ();
     type Count = Count<0>;
     type Commands = Self;
-}
-
-impl Compute for Reset {
-    type Workgroups = WorkgroupDispatch<0, 0, 0>;
-    const COMPUTE_SHADER_PATH: &'static str = "shaders/reset.wgsl";
+    type Dispatch = StaticDispatch<0>;
 }
 
 impl GpuCommands for Reset {

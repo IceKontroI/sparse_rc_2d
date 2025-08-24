@@ -571,7 +571,7 @@ fn c0TaskValid(xy: vec2u) -> bool {
     }
 
     // sparse filled mode puts probes everywhere
-    if rc::filled_mode == 1u {
+    if rc::rc_model == 1u {
         return true;
     }
 

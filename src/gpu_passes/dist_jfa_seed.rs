@@ -1,19 +1,20 @@
 use bevy::{prelude::*, render::{render_graph::*, render_resource::*}};
-use crate::{gpu_api::{attach::*, pass::*}, gpu_resources::textures::*};
-use crate::gpu_api::{color::*, utils::*};
+use gputil::{attach::*, color::*, raster::*, utils::*};
+use crate::gpu_resources::textures::*;
 
 #[derive(Default, Debug, Hash, PartialEq, Eq, Clone, RenderLabel)]
 pub struct DistJfaSeed;
 
-impl Pass for DistJfaSeed {
+impl Raster for DistJfaSeed {
+
+    const VERTEX_FRAGMENT_SHADER_PATH: &'static str = "shaders/dist_jfa_seed.wgsl";
+
     type Binds = ViewBind<CoreBindGroup>;
+    type ColorTargets = FromAttach<JumpFloodA>;
+    type DepthTarget = ();
     type Count = Count<1>;
     type Commands = ();
-}
-
-impl Raster for DistJfaSeed {
-    type Targets = FromAttach<JumpFloodA>;
-    const VERTEX_FRAGMENT_SHADER_PATH: &'static str = "shaders/dist_jfa_seed.wgsl";
+    type RasterDraw = RasterDrawQuad;
     
     fn fragment_targets() -> Vec<Option<ColorTargetState>> {
         vec![Some(JumpFloodA::color_target_state::<0>())]

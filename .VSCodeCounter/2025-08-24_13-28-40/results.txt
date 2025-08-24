@@ -1,0 +1,53 @@
+Date : 2025-08-24 13:28:40
+Directory : c:\Users\MACHINE\GG\rc\src
+Total : 23 files,  1604 codes, 128 comments, 261 blanks, all 1993 lines
+
+Languages
++----------+------------+------------+------------+------------+------------+
+| language | files      | code       | comment    | blank      | total      |
++----------+------------+------------+------------+------------+------------+
+| Rust     |         23 |      1,604 |        128 |        261 |      1,993 |
++----------+------------+------------+------------+------------+------------+
+
+Directories
++---------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                    | files      | code       | comment    | blank      | total      |
++---------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                       |         23 |      1,604 |        128 |        261 |      1,993 |
+| . (Files)                                               |          2 |         49 |         17 |          8 |         74 |
+| core                                                    |          2 |         29 |         17 |         12 |         58 |
+| debug                                                   |          3 |        290 |         39 |         42 |        371 |
+| gpu_passes                                              |          9 |        489 |         18 |        102 |        609 |
+| gpu_resources                                           |          4 |        493 |         32 |         58 |        583 |
+| utils                                                   |          3 |        254 |          5 |         39 |        298 |
++---------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++---------------------------------------------------------+----------+------------+------------+------------+------------+
+| filename                                                | language | code       | comment    | blank      | total      |
++---------------------------------------------------------+----------+------------+------------+------------+------------+
+| c:\Users\MACHINE\GG\rc\src\core\constants.rs            | Rust     |          7 |         13 |          7 |         27 |
+| c:\Users\MACHINE\GG\rc\src\core\math.rs                 | Rust     |         22 |          4 |          5 |         31 |
+| c:\Users\MACHINE\GG\rc\src\debug\metrics.rs             | Rust     |         55 |          1 |          8 |         64 |
+| c:\Users\MACHINE\GG\rc\src\debug\statistics.rs          | Rust     |        170 |         32 |         24 |        226 |
+| c:\Users\MACHINE\GG\rc\src\debug\timings.rs             | Rust     |         65 |          6 |         10 |         81 |
+| c:\Users\MACHINE\GG\rc\src\gpu_passes\dist_field.rs     | Rust     |         18 |          2 |          6 |         26 |
+| c:\Users\MACHINE\GG\rc\src\gpu_passes\dist_jfa_loop.rs  | Rust     |         85 |          4 |         16 |        105 |
+| c:\Users\MACHINE\GG\rc\src\gpu_passes\dist_jfa_seed.rs  | Rust     |         22 |          0 |          7 |         29 |
+| c:\Users\MACHINE\GG\rc\src\gpu_passes\draw.rs           | Rust     |         74 |          1 |         16 |         91 |
+| c:\Users\MACHINE\GG\rc\src\gpu_passes\output.rs         | Rust     |         31 |          0 |          8 |         39 |
+| c:\Users\MACHINE\GG\rc\src\gpu_passes\plugin.rs         | Rust     |         47 |          0 |          9 |         56 |
+| c:\Users\MACHINE\GG\rc\src\gpu_passes\rc_dense.rs       | Rust     |        126 |          6 |         23 |        155 |
+| c:\Users\MACHINE\GG\rc\src\gpu_passes\rc_sparse.rs      | Rust     |         47 |          4 |         10 |         61 |
+| c:\Users\MACHINE\GG\rc\src\gpu_passes\reset.rs          | Rust     |         39 |          1 |          7 |         47 |
+| c:\Users\MACHINE\GG\rc\src\gpu_resources\mouse_trail.rs | Rust     |        139 |         14 |         19 |        172 |
+| c:\Users\MACHINE\GG\rc\src\gpu_resources\slab.rs        | Rust     |         44 |          4 |          9 |         57 |
+| c:\Users\MACHINE\GG\rc\src\gpu_resources\textures.rs    | Rust     |        173 |          8 |         17 |        198 |
+| c:\Users\MACHINE\GG\rc\src\gpu_resources\uniforms.rs    | Rust     |        137 |          6 |         13 |        156 |
+| c:\Users\MACHINE\GG\rc\src\lib.rs                       | Rust     |         32 |          6 |          5 |         43 |
+| c:\Users\MACHINE\GG\rc\src\main.rs                      | Rust     |         17 |         11 |          3 |         31 |
+| c:\Users\MACHINE\GG\rc\src\utils\extensions.rs          | Rust     |         60 |          0 |         14 |         74 |
+| c:\Users\MACHINE\GG\rc\src\utils\launch.rs              | Rust     |         19 |          0 |          1 |         20 |
+| c:\Users\MACHINE\GG\rc\src\utils\save_load.rs           | Rust     |        175 |          5 |         24 |        204 |
+| Total                                                   |          |      1,604 |        128 |        261 |      1,993 |
++---------------------------------------------------------+----------+------------+------------+------------+------------+

@@ -16,7 +16,7 @@ const DISTANCE_FIELD_MODE: u32 = 5u;
 @group(0) @binding(0) var<uniform> function_mode: u32;
 @group(0) @binding(1) var<uniform> debug_mode: u32;
 @group(0) @binding(2) var<uniform> push_mode: u32;
-@group(0) @binding(3) var<uniform> filled_mode: u32;
+@group(0) @binding(3) var<uniform> rc_model: u32;
 
 // RC general context
 @group(0) @binding(4) var<uniform> screen_dims: vec2u;
