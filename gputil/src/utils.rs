@@ -1,7 +1,9 @@
 use std::{any::*, fmt::{Debug, Formatter}, hash::*, marker::*, ops::*};
-use bevy::{ecs::{query::*, system::*}, prelude::*};
+use bevy::{ecs::{query::*, system::*}, prelude::*, render::view::ViewTarget};
 use bevy::render::{render_asset::*, render_graph::*, render_resource::*, storage::*, texture::*};
 use encase::internal::WriteInto;
+use crate::color::ColorTarget;
+
 use super::attach::Attach;
 
 /// For binding Bevy ECS Components.
@@ -72,6 +74,17 @@ pub struct Uniform<U: ShaderType + WriteInto> {
 impl<U: ShaderType + WriteInto> Uniform<U> {
     pub fn of(uniform: U) -> Self {
         Self { uniform }
+    }
+}
+
+/// Color target for bevy's screen.
+pub struct ViewColorTarget;
+impl ColorTarget for ViewColorTarget {
+    type WorldParams<'w, 's> = ();
+    type ViewParams<'w, 's> = &'w ViewTarget;
+
+    fn get_view(_: usize, _: (), view: &ViewTarget, _: &mut BindParams<'_>) -> Option<OOM<TextureView>> { 
+        Some(OOM::One(view.post_process_write().destination.clone()))
     }
 }
 

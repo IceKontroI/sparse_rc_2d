@@ -554,7 +554,7 @@ fn sampleAlbedoQuad(xy: vec2i) -> u32 {
     var solid = 0u;
     for (var i = 0; i < rc::QUAD_OFFSETS_LEN; i += 1) {
         let sample = xy + rc::QUAD_OFFSETS[i];
-        let alpha = textureLoad(rc::scene_albedo, sample, 0).a;
+        let alpha = rc::loadAlbedo(sample).a;
         solid += u32(ceil(alpha));
     }
     switch solid {

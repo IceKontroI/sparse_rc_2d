@@ -17,6 +17,7 @@ fn fragment(@builtin(position) position: vec4f) -> @location(0) vec4f {
         case rc::DISTANCE_FIELD_MODE   { return drawDistanceField(xy); }
         case rc::CASCADE_BLOCK_MODE    { return textureLoad(rc::debug_texture, xy / 2); }
         case rc::CASCADE_INTERVAL_MODE { return getLighting(xy, false); }
+        case rc::RAY_DEBUG_MODE        { return drawCascadeRays(xy); }
         default                        { return drawScene(xy); }
     }
 }
@@ -26,7 +27,11 @@ fn getLighting(xy: vec2u, stylize: bool) -> vec4f {
 }
 
 fn drawScene(xy: vec2u) -> vec4f {
-    return getLighting(xy, true) + textureLoad(rc::scene_albedo, xy, 0);
+    let emissive = rc::loadEmissive(vec2i(xy));
+    if emissive.a > 0.0 {
+        return emissive;
+    }
+    return rc::loadAlbedo(vec2i(xy)) + getLighting(xy, true);
 }
 
 /// Sparse model only. Debugs the tasks that were actually involved in computing the scene's lighting.
@@ -61,4 +66,18 @@ fn drawDistanceField(xy: vec2u) -> vec4f {
     let dist = textureLoad(rc::distance_field, xy, 0).r;
     let size = textureDimensions(rc::distance_field);
     return vec4f(dist / length(vec2f(size)));
+}
+
+/// Draws the rays of the cascade used to generate fluence for the c0 probe nearest to the mouse.
+/// Note that the zoom is already applied in the vertex shader to the lines so they are higher quality.
+fn drawCascadeRays(xy: vec2u) -> vec4f {
+    var zoom_xy = xy;
+    if rc::function_mode == rc::RAY_DEBUG_MODE {
+        let norm = vec2f(xy) / vec2f(rc::screen_dims);
+        let mouse_norm = rc::mouse_this_pos / vec2f(rc::screen_dims);
+        let zoom = 1u << rc::debug_mode;
+        let zoomed = mouse_norm + (norm - mouse_norm) * (1.0 / f32(zoom));
+        zoom_xy = vec2u(clamp(zoomed * vec2f(rc::screen_dims), vec2f(0.0), vec2f(rc::screen_dims - 1u)));
+    }
+    return drawScene(zoom_xy) + textureLoad(rc::debug_texture, xy);
 }

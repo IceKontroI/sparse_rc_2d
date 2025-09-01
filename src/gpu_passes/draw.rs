@@ -1,7 +1,9 @@
 use bevy::prelude::*;
-use bevy::render::{render_graph::*, render_resource::*, renderer::*};
-use gputil::{attach::*, bind::*, color::*, raster::*, utils::*};
-use crate::gpu_resources::{mouse_trail::*, textures::*};
+use bevy::render::{render_graph::*, render_resource::*};
+use gputil::{attach::*, color::*, raster::*, utils::*};
+use crate::gpu_resources::{textures::*, uniforms::*};
+
+const MOUSE_TRAIL_POINTS: u32 = 64;
 
 #[derive(Default, Debug, Hash, PartialEq, Eq, Clone, RenderLabel)]
 pub struct Draw;
@@ -17,57 +19,35 @@ impl Raster for Draw {
     
     const VERTEX_FRAGMENT_SHADER_PATH: &'static str = "shaders/draw.wgsl";
     
-    type Binds = DrawUniformBind;
-    type Count = DrawIter;
+    type Binds = WorldBind<RcUniforms>;
+    type Count = Count<1>;
     type Commands = ();
-    type ColorTargets = SceneAttachments;
+    type ColorTargets = SceneAttachments; // TODO this can be simplified, pretty sure
     type DepthTarget = ();
-    type RasterDraw = RasterDrawQuad;
+    type RasterDraw = Self;
+
+    fn shader_defs() -> Vec<ShaderDefVal> {
+        vec![ShaderDefVal::UInt("MOUSE_TRAIL_POINTS".into(), MOUSE_TRAIL_POINTS)]
+    }
 
     fn fragment_targets() -> Vec<Option<ColorTargetState>> {vec![
         Some(CoreBindGroup::color_target_state::<0>()), // albedo 
         Some(CoreBindGroup::color_target_state::<1>()), // emissive
     ]}
-    
 }
 
-pub struct DrawIter;
-impl PassIter for DrawIter {
-    type WorldParams<'w, 's> = Res<'w, MouseTrail>;
+impl RasterDraw for Draw {
+    type WorldParams<'w, 's> = ();
     type ViewParams<'w, 's> = ();
 
-    fn iterations<'w, 's>(mouse_trail: Res<MouseTrail>, _: ()) -> usize {
-        if let MouseTrail { 
-            connected: true, 
-            last_quad: Some(_),
-            .. 
-        } = *mouse_trail { 
-            1 
-        } else { 
-            0 
-        }
-    }
-}
-
-pub struct DrawUniformBind;
-impl Bind for DrawUniformBind {
-    type WorldParams<'w, 's> = Res<'w, MouseTrail>;
-    type ViewParams<'w, 's> = ();
-
-    fn layout(device: &RenderDevice) -> BindGroupLayout {
-        Uniform::<DrawUniform>::bind_group_layout(device)
-    }
-
-    fn group(_: usize, mouse_trail: Res<MouseTrail>, _: (), c: BindContext) -> Option<OOM<BindGroup>> {
-        let MouseTrail { 
-            last_quad: Some(quad), brush, rgb, .. 
-        } = *mouse_trail else {
-            // error!("Invalid: {:?}", *mouse_trail);
-            return None;
-        };
-        let uniform = Uniform::of(DrawUniform { quad, brush, rgb, });
-        let bind_group = uniform.as_bind_group(c.layout, c.device, c.bind_params).ok()?.bind_group;
-        Some(OOM::One(bind_group))
+    fn get_raster_draw_type<'a, 'w, 's>(
+        _: &'a Self::WorldParams<'w, 's>, 
+        _: &'a Self::ViewParams<'w, '_>,
+    ) -> Option<Vec<RasterDrawType<'a>>> {
+        Some(vec![RasterDrawType::FixedVertices { 
+            vertices: 0..(4 * MOUSE_TRAIL_POINTS), 
+            instances: 0..MOUSE_TRAIL_POINTS,
+        }])
     }
 }
 

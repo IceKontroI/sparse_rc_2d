@@ -1,7 +1,7 @@
 use bevy::app::*;
 use rc::debug::timings::*;
 use rc::gpu_passes::plugin::*;
-use rc::gpu_resources::{mouse_trail::*, slab::*, textures::*, uniforms::*};
+use rc::gpu_resources::{slab::*, textures::*, uniforms::*};
 use rc::utils::{launch::*, save_load::*};
 
 /// TODO backlog:
@@ -19,7 +19,6 @@ use rc::utils::{launch::*, save_load::*};
 fn main() {
     App::new()
         .add_plugins(Launch::<1920, 1080>)
-        .add_plugins(MouseTrailPlugin)
         .add_plugins(TexturesPlugin)
         .add_plugins(RenderPassTimingsPlugin)
         .add_plugins(UniformsPlugin)

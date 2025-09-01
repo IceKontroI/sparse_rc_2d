@@ -20,6 +20,7 @@ impl Plugin for RenderPassesPlugin {
             .add_render_graph_node::<ViewNodeRunner<RasterPassLabel<DistField>>>(Core2d, DistField)
             .add_render_graph_node::<ViewNodeRunner<RasterPassLabel<RcDense>>>(Core2d, RcDense)
             .add_render_graph_node::<ViewNodeRunner<ComputePassLabel<RcSparse>>>(Core2d, RcSparse)
+            .add_render_graph_node::<ViewNodeRunner<RasterPassLabel<RayDebug>>>(Core2d, RayDebug)
             .add_render_graph_node::<ViewNodeRunner<RasterPassLabel<Output>>>(Core2d, Output);
 
         render_app.add_render_graph_edges(Core2d, (
@@ -32,6 +33,7 @@ impl Plugin for RenderPassesPlugin {
             DistField,
             RcDense,
             RcSparse,
+            RayDebug,
             Output,
             Node2d::EndMainPassPostProcessing,
         ));
@@ -50,6 +52,7 @@ impl Plugin for RenderPassesPlugin {
             .init_resource::<RasterPipeline<DistField>>()
             .init_resource::<RasterPipeline<RcDense>>()
             .init_resource::<ComputePipeline<RcSparse>>()
+            .init_resource::<RasterPipeline<RayDebug>>()
             .init_resource::<RasterPipeline<Output>>();
     }
 }

@@ -16,6 +16,7 @@ pub struct Statistics {
     pub rays_per_level: [u32; MAX_CASCADES],
     pub threads_active: u32,
     pub threads_idle: u32,
+    pub debug_ray_count: u32,
 }
 
 pub fn readback(
@@ -29,6 +30,7 @@ pub fn readback(
     mut sparse_memory: Metrics<SparseMemory>,
     mut thread_utilization: Metrics<ThreadUtilization>,
     mut data_lost: Metrics<SlabAllocFailures>,
+    mut debug_rays: Metrics<DebugRays>,
 ) {
     let statistics = trigger.event().to_shader_type::<Statistics>();
     merge_count += statistics.merge_count as usize;
@@ -46,6 +48,7 @@ pub fn readback(
     let total = (statistics.threads_active + statistics.threads_idle) as f32;
     thread_utilization += active / total;
     rays_cast += RayArray(statistics.rays_per_level);
+    debug_rays += statistics.debug_ray_count as usize;
 }
 
 /// Number of times the merge process was performed.
@@ -220,6 +223,19 @@ impl Metric for ThreadUtilization {
             } else {
                 warn!("{}", message);
             }
+        }
+    }
+}
+
+/// Number of rays being debugged on screen when in Ray Debug mode.
+pub struct DebugRays;
+impl Metric for DebugRays {
+    type Data = usize;
+
+    fn emit(count: usize, frames: u32) {
+        if count > 0 && frames > 0 {
+            let count = (count / frames as usize).to_formatted_string(&Locale::en);
+            info!("Debug ray count: {count}");
         }
     }
 }

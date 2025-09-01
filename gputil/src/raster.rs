@@ -1,4 +1,4 @@
-use std::{any::*, marker::*, sync::*};
+use std::{any::*, marker::*, ops::Range, sync::*};
 use bevy::{ecs::{query::*, system::*}, mesh::*, prelude::*, shader::*};
 use bevy::render::{diagnostic::*, render_graph::{Node, *}, render_resource::*, renderer::*};
 use crate::{bind::*, color::*, utils::*};
@@ -15,6 +15,7 @@ pub trait Raster: Sized + Send + Sync + 'static {
     const VERTEX_FRAGMENT_SHADER_PATH: &'static str;
     const VERTEX_ENTRY_POINT: &'static str = "vertex";
     const FRAGMENT_ENTRY_POINT: &'static str = "fragment";
+    const PRIMITIVE_TOPOLOGY: PrimitiveTopology = PrimitiveTopology::TriangleStrip;
 
     fn shader_defs() -> Vec<ShaderDefVal> { vec![] }
     fn multisample() -> MultisampleState { default() }
@@ -47,6 +48,10 @@ impl RasterDraw for RasterDrawQuad {
 
 #[derive(Clone)]
 pub enum RasterDrawType<'a> {
+    FixedVertices { 
+        vertices: Range<u32>, 
+        instances: Range<u32>,
+    },
     SingleQuad,
     SetVertexBuffer {
         slot: u32, 
@@ -55,6 +60,11 @@ pub enum RasterDrawType<'a> {
     DrawIndirect {
         indirect_buffer: Buffer, 
         indirect_offset: BufferAddress,
+    },
+    MultiDrawIndirect {
+        indirect_buffer: Buffer, 
+        indirect_offset: BufferAddress,
+        count: u32,
     },
     SetViewport {
         x: f32, y: f32, w: f32, h: f32, 
@@ -105,7 +115,7 @@ impl<T: Raster> FromWorld for RasterPipeline<T> {
                 buffers: T::vertex_buffers(),
             },
             primitive: PrimitiveState { 
-                topology: PrimitiveTopology::TriangleStrip,
+                topology: T::PRIMITIVE_TOPOLOGY,
                 cull_mode: None,
                 ..default()
             },
@@ -215,6 +225,9 @@ impl<T: Raster> ViewNode for RasterPassLabel<T> {
 
             for command in &raster_draw {
                 match command.clone() {
+                    RasterDrawType::FixedVertices { vertices, instances } => {
+                        render_pass.draw(vertices, instances)
+                    }
                     RasterDrawType::SingleQuad => {
                         render_pass.draw(0..4, 0..1)
                     },
@@ -224,6 +237,9 @@ impl<T: Raster> ViewNode for RasterPassLabel<T> {
                     RasterDrawType::DrawIndirect { indirect_buffer, indirect_offset } => {
                         render_pass.draw_indirect(&indirect_buffer, indirect_offset)
                     },
+                    RasterDrawType::MultiDrawIndirect { indirect_buffer, indirect_offset, count, } => {
+                        render_pass.multi_draw_indirect(&indirect_buffer, indirect_offset, count)
+                    }
                     RasterDrawType::SetViewport { x, y, w, h, min_depth, max_depth } => {
                         render_pass.set_viewport( x, y, w, h, min_depth, max_depth)
                     },
@@ -236,5 +252,26 @@ impl<T: Raster> ViewNode for RasterPassLabel<T> {
 
         time_span.end(commands);
         Ok(())
+    }
+}
+
+#[repr(C)]
+#[derive(Default, Copy, Clone, ShaderType)]
+pub struct IndirectDrawArgs {
+    pub vertex_count: u32, 
+    pub instance_count: u32,
+    pub first_vertex: u32,
+    pub first_instance: u32,
+}
+
+impl IndirectDrawArgs {
+    pub fn points() -> Self {
+        Self { vertex_count: 1, ..default() }
+    }
+    pub fn lines() -> Self {
+        Self { vertex_count: 2, ..default() }
+    }
+    pub fn quads() -> Self {
+        Self { vertex_count: 4, ..default() }
     }
 }

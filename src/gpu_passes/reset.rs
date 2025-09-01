@@ -1,10 +1,8 @@
 use bevy::prelude::*;
 use bevy::render::{render_asset::*, render_graph::*, render_resource::*, storage::*, texture::*};
-use gputil::compute::{Compute, StaticDispatch};
-use gputil::utils::{Count, GpuCommands};
-use crate::gpu_resources::{slab::*, textures::*};
+use gputil::{compute::*, utils::*};
+use crate::gpu_resources::{slab::*, textures::*, uniforms::*};
 
-/// Doesn't do any work, just clears some resources each frame.
 #[derive(Default, Debug, Hash, PartialEq, Eq, Clone, RenderLabel)]
 pub struct Reset;
 
@@ -12,10 +10,13 @@ impl Compute for Reset {
 
     const COMPUTE_SHADER_PATH: &'static str = "shaders/reset.wgsl";
 
-    type Binds = ();
-    type Count = Count<0>;
+    type Binds = (
+        WorldBind<RcUniforms>,
+        ViewBind<CoreBindGroup>, 
+    );
+    type Count = Count<1>;
     type Commands = Self;
-    type Dispatch = StaticDispatch<0>;
+    type Dispatch = StaticDispatch<1, 1, 1>;
 }
 
 impl GpuCommands for Reset {

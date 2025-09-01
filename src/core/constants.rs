@@ -2,6 +2,10 @@ use bevy::log::Level;
 
 pub const LOG_LEVEL: Level = Level::INFO;
 
+/// Initial color of the brush for mouse drawing.
+/// Mouse cannot be < 1.0 to avoid leaking light.
+pub const STARTING_BRUSH_SIZE: f32 = 4.0;
+
 /// Using anything other than `2` will probably break stuff.
 pub const PROBE_SPACING: u32 = 2;
 

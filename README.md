@@ -8,6 +8,7 @@ The Sparse and Dense models all have:
 - 2x linear scaling
 - 4x angular scaling
 - nearest-neighbor fix
+- (optionally) forking fix
 - pre-averaging optimization
 - the same raymarching and merge logic
 - zero interpolation
@@ -34,7 +35,7 @@ The setting won't "wrap" so spamming page up will not pass SparseEdge, and likew
 ---
 # Scene Drawing/Saving/Loading
 
-Press left mouse button to draw solids and right button to draw lights. Currently erasing the scene is not supported. Colors are chosen at random.
+Press left mouse button to draw. Press 2 to change the brush to drawing lights, 3 to enable erase brush, and any other digit key to draw solids. Scrolling up and down resizes the brush. Press tab to randomly toggle between brush colors.
 
 Scenes have an Albedo and Emissive layer. Sample scenes are found in `../assets/scenes/`.
 - Drag and drop images onto the app window to load them. Only .png with "albedo" and "emissive" in their names are accepted.
@@ -55,6 +56,7 @@ F1/F2/F3/F4 all rely on a selected cascade level to generate output. Use the dig
 - **F3: Cascade Block** mode debugs the lighting stored in individual cascades. It allows you to directly view the texture of all cascades at a particular level on-screen.
 - **F4: Cascade Interval** mode lights the scene using only the lighting from the selected cascade level, to better visualize the intervals generated at that cascade level.
 - **F5: Distance Field** mode shows the actual (unsigned) distance field used in raymarching.
+- **F6: Cascade Ray Visualizer** mode shows the actual rays that are cast from the c0 probe closest to the mouse's position. Select zoom level by pressing the digit keys.
 
 ---
 # Caveats

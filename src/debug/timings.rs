@@ -24,6 +24,7 @@ pub fn print_render_pass_timings(
     mut dist_field: Metrics<DistField>,
     mut rc_dense: Metrics<RcDense>,
     mut rc_sparse: Metrics<RcSparse>,
+    mut ray_debug: Metrics<RayDebug>,
     mut output: Metrics<Output>,
     mut frame: Metrics<Frame>,
 ) {
@@ -35,6 +36,7 @@ pub fn print_render_pass_timings(
     total += apply_and_get_time(&d, &mut dist_field);
     total += apply_and_get_time(&d, &mut rc_dense);
     total += apply_and_get_time(&d, &mut rc_sparse);
+    total += apply_and_get_time(&d, &mut ray_debug);
     total += apply_and_get_time(&d, &mut output);
     frame += total;
 }
@@ -50,6 +52,7 @@ impl RenderPassMetrics for DistJfaLoop {}
 impl RenderPassMetrics for DistField {}
 impl RenderPassMetrics for RcDense {}
 impl RenderPassMetrics for RcSparse {}
+impl RenderPassMetrics for RayDebug {}
 impl RenderPassMetrics for Output {}
 
 // for aggregate render pass metrics

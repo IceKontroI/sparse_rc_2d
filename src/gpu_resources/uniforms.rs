@@ -1,8 +1,24 @@
 use std::f32::consts::TAU;
-use bevy::{app::*, prelude::*};
+use bevy::{app::*, input::mouse::*, prelude::*};
 use bevy::render::{extract_resource::*, render_resource::*};
+use rand::random;
 use crate::core::{constants::*, math::*};
 use crate::utils::extensions::*;
+
+const COLORS: &[Vec4] = &[
+    Vec4::new(0.025, 0.011, 0.18 , 1.0), // indigo
+    Vec4::new(0.123, 0.01,  0.014, 1.0), // maroon
+    Vec4::new(0.03,  0.05,  0.08 , 1.0), // slate gray
+    Vec4::new(0.0,   0.1,   0.25 , 1.0), // sky
+    Vec4::new(0.04,  0.2,   0.13 , 1.0), // forest
+    Vec4::new(0.78,  0.85,  1.0  , 1.0), // fluorescent
+    Vec4::new(0.9,   0.7,   0.4  , 1.0), // sun
+    Vec4::new(0.05,  0.0,   0.47 , 1.0), // uv
+    Vec4::new(0.82,  0.09,  0.09 , 1.0), // amaranth
+    Vec4::new(0.735, 0.854, 0.424, 1.0), // lime
+    Vec4::new(0.07,  0.48,  0.47 , 1.0), // turquoise
+    Vec4::new(0.68,  0.21,  0.08 , 1.0), // flame
+];
 
 pub struct UniformsPlugin;
 impl Plugin for UniformsPlugin {
@@ -14,6 +30,7 @@ impl Plugin for UniformsPlugin {
             update_function_mode,
             update_debug_mode,
             update_push_mode,
+            update_mouse_data,
             update_params,
         ));
     }
@@ -66,14 +83,21 @@ pub struct RcUniforms {
     #[uniform(1)] pub debug_mode: u32,
     #[uniform(2)] pub push_mode: u32,
     #[uniform(3)] pub rc_model: u32,
+    // mouse drawing related
+    pub mouse_color_index: usize,
+    #[uniform(4)] pub mouse_brush_rgba: Vec4,
+    #[uniform(5)] pub mouse_brush_size: f32,
+    #[uniform(6)] pub mouse_button_pressed: u32,
+    #[uniform(7)] pub mouse_last_pos: Vec2,
+    #[uniform(8)] pub mouse_this_pos: Vec2,
     // core params
-    #[uniform(4)] pub screen_dims: UVec2,
-    #[uniform(5)] pub cascade_dims: UVec2,
-    #[uniform(6)] pub num_cascades: u32,
-    #[uniform(7)] pub texel_span: u32,
+    #[uniform(9)] pub screen_dims: UVec2,
+    #[uniform(10)] pub cascade_dims: UVec2,
+    #[uniform(11)] pub num_cascades: u32,
+    #[uniform(12)] pub texel_span: u32,
     // level params
-    #[uniform(8)] pub cascade_level: u32,
-    #[uniform(9)] pub level: [LevelParams; MAX_CASCADES],
+    #[uniform(13)] pub cascade_level: u32,
+    #[uniform(14)] pub level: [LevelParams; MAX_CASCADES],
 }
 
 fn update_function_mode(
@@ -123,6 +147,44 @@ fn update_push_mode(
     rcu.push_mode = new;
 }
 
+fn update_mouse_data(
+    mut rcu: ResMut<RcUniforms>,
+    mouse: Res<ButtonInput<MouseButton>>,
+    mut mouse_moved: EventReader<CursorMoved>,
+    mut mouse_wheel: EventReader<MouseWheel>,
+    keyboard: Res<ButtonInput<KeyCode>>,
+) {
+
+    if rcu.mouse_brush_size == 0.0 {
+        // on program start, brush size will default to 0 so we correct it
+        // but also take the opportunity to randomize the starting color
+        rcu.mouse_brush_size = STARTING_BRUSH_SIZE;
+        rcu.mouse_color_index = random::<u32>() as usize;
+    } else if keyboard.just_pressed(KeyCode::Tab) {
+        rcu.mouse_color_index += 1;
+    }
+    rcu.mouse_brush_rgba = COLORS[rcu.mouse_color_index % COLORS.len()];
+
+    // update mouse button pressing status
+    rcu.mouse_button_pressed = if mouse.just_pressed(MouseButton::Left) {
+        1 // first press
+    } else if mouse.pressed(MouseButton::Left) {
+        2 // connected press
+    } else {
+        0 // not pressing
+    };
+
+    // update the last/this mouse position for us to interpolate between
+    rcu.mouse_last_pos = rcu.mouse_this_pos;
+    if let Some(moved) = mouse_moved.read().last() {
+        rcu.mouse_this_pos = moved.position;
+    };
+
+    // update brush radius with scroll button
+    let wheel_delta = mouse_wheel.read().map(|wheel| wheel.x + wheel.y).sum::<f32>();
+    rcu.mouse_brush_size = f32::clamp(rcu.mouse_brush_size + wheel_delta, 1.0, 64.0);
+}
+
 // TODO this can be mostly precomputed once on startup and then partially updated, but it's w/e
 fn update_params(mut rcu: ResMut<RcUniforms>, camera: Single<&Camera>) {
 
@@ -149,6 +211,7 @@ fn update_params(mut rcu: ResMut<RcUniforms>, camera: Single<&Camera>) {
             two_pow_index,
             angle_ratio: TAU / angular_resolution as f32,
             probe_spacing: c0_probe_spacing * two_pow_index,
+            // interval lengths: [1, 7, 31, 127, 511, 2047]
             interval_start: (c0_interval_length as i32 * (1 - four_pow_index as i32) / (1 - 4)) as u32,
         };
     }

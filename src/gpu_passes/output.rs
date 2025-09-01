@@ -1,7 +1,7 @@
 use std::marker::*;
 use bevy::prelude::*;
-use bevy::render::{render_graph::*, render_resource::*, view::*};
-use gputil::{color::*, raster::*, utils::*};
+use bevy::render::{render_graph::*, render_resource::*};
+use gputil::{raster::*, utils::*};
 use crate::gpu_resources::{textures::*, uniforms::*};
 
 #[derive(Default, Debug, Hash, PartialEq, Eq, Clone, RenderLabel)]
@@ -16,7 +16,7 @@ impl Raster for Output {
         ViewBind<CoreBindGroup>, 
         ViewBind<DirectLightingB>,
     );
-    type ColorTargets = Screen;
+    type ColorTargets = ViewColorTarget;
     type DepthTarget = ();
     type Count = Count<1>;
     type Commands = ();
@@ -24,15 +24,5 @@ impl Raster for Output {
 
     fn fragment_targets() -> Vec<Option<ColorTargetState>> {
         vec![Some(TextureFormat::bevy_default().into())]
-    }
-}
-
-pub struct Screen;
-impl ColorTarget for Screen {
-    type WorldParams<'w, 's> = ();
-    type ViewParams<'w, 's> = &'w ViewTarget;
-
-    fn get_view(_: usize, _: (), view: &ViewTarget, _: &mut BindParams<'_>) -> Option<OOM<TextureView>> { 
-        Some(OOM::One(view.post_process_write().destination.clone()))
     }
 }

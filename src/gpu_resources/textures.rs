@@ -2,7 +2,7 @@ use std::result::Result;
 use bevy::{app::*, prelude::*, render::{render_resource::*, *}};
 use extract_component::*;
 use gpu_readback::*;
-use gputil::attach::*;
+use gputil::{attach::*, raster::IndirectDrawArgs};
 use ndex::*;
 use chain_link::*;
 use storage::*;
@@ -36,15 +36,33 @@ pub fn init_view_bindings(
     mut commands: Commands,
 ) {
 
+    let mut core_bind_group = CoreBindGroup::default();
+
     // Core bind group has the statistics readback added to it so we can limit all shaders to 
     // to 4 bind groups to maximize portability but that made this system a bit less readable
-    let mut core_bind_group = CoreBindGroup::default();
-    let mut buffer = ShaderStorageBuffer::from(Statistics::default());
-    buffer.buffer_description.usage = BufferUsages::COPY_DST | BufferUsages::STORAGE | BufferUsages::COPY_SRC;
-    buffer.buffer_description.label = Some("Statistics Readback Buffer");
-    core_bind_group.statistics = buffers.add(buffer);
+    let mut statistics_buffer = ShaderStorageBuffer::from(Statistics::default());
+    statistics_buffer.buffer_description.usage = BufferUsages::COPY_DST | BufferUsages::STORAGE | BufferUsages::COPY_SRC;
+    statistics_buffer.buffer_description.label = Some("Statistics Readback Buffer");
+    core_bind_group.statistics = buffers.add(statistics_buffer);
     commands.spawn(Readback::buffer(core_bind_group.statistics.clone()))
         .observe(readback); // readback system is at: `crate::debug::statistics::readback`
+
+    // Buffers for storing tgw ray vertices and deferred compute args for drawing the rays of the
+    // cascades that contributed to the fluence at the mouse's current pixel (in the associated debug mode)
+    let mut ray_indirect_args = ShaderStorageBuffer::from(IndirectDrawArgs::lines());
+    ray_indirect_args.buffer_description.label = Some("Ray Indirect Args");
+    ray_indirect_args.buffer_description.usage = BufferUsages::STORAGE
+        .union(BufferUsages::INDIRECT)
+        .union(BufferUsages::COPY_SRC)
+        .union(BufferUsages::COPY_DST);
+
+    let mut ray_vertex_buffer = ShaderStorageBuffer::from(vec![Vec4::default(); 20_000_000]); // TODO hardcoded and copied in shader, must change both!
+    ray_vertex_buffer.buffer_description.label = Some("Ray Vertex Buffer");
+    ray_vertex_buffer.buffer_description.usage = BufferUsages::STORAGE
+        .union(BufferUsages::VERTEX);
+
+    core_bind_group.ray_deferred_args = buffers.add(ray_indirect_args);
+    core_bind_group.ray_vertex_buffer = buffers.add(ray_vertex_buffer);
 
     commands.spawn((
         Projection::Orthographic(OrthographicProjection::default_2d()),
@@ -76,6 +94,10 @@ pub struct CoreBindGroup {
     pub debug: Handle<Image>,
     #[storage(4, visibility(all))]
     pub statistics: Handle<ShaderStorageBuffer>,
+    #[storage(5, visibility(all))]
+    pub ray_deferred_args: Handle<ShaderStorageBuffer>,
+    #[storage(6, visibility(all))]
+    pub ray_vertex_buffer: Handle<ShaderStorageBuffer>,
 }
 impl Attach<0> for CoreBindGroup {
     const TEXTURE_FORMAT: TextureFormat = TextureFormat::Rgba8Unorm;
@@ -94,13 +116,11 @@ impl Attach<2> for CoreBindGroup {
 }
 impl Attach<3> for CoreBindGroup {        
     const TEXTURE_FORMAT: TextureFormat = TextureFormat::Rgba8Unorm;
-    const TEXTURE_USAGES: TextureUsages = STORAGE_USAGES;
+    const TEXTURE_USAGES: TextureUsages = STORAGE_USAGES
+        .union(TextureUsages::RENDER_ATTACHMENT); // lets us write to it in ray debug fragment
     const COPY_ON_RESIZE: bool = true;
 
-    // debug texture is in 1/4 resolution since it's debugging cascade-specific output
-    // and because we're using pre-averaging cascade-level textures are in quarter-res
-    fn compute_size(dimensions: UVec2) -> Extent3d {
-        let Extent3d { width, height, .. } = get_cascade_extents(dimensions);
+    fn compute_size(UVec2 { x: width, y: height }: UVec2) -> Extent3d {
         Extent3d { width, height, depth_or_array_layers: 1 }
     }
 }
